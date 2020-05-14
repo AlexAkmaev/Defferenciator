@@ -153,28 +153,10 @@ std::vector<Token> Tokenize(std::istream& cl) {
 
 
 std::ostream& operator<< (std::ostream& os, const TokenType& t) {
-	if(t == TokenType::Logic_Op) {
-		os << "Logic_Op";
-	} else if(t == TokenType::Compare_Op) {
-		os << "Compare_Op";
-	} else if(t == TokenType::Assign) {
-		os << "Assign";
-	} else if(t == TokenType::While) {
-		os << "While";
-	} else if(t == TokenType::If) {
-		os << "If";
-	} else if(t == TokenType::Print) {
-		os << "Print";
-	} else if(t == TokenType::Scanf) {
-		os << "Scanf";
-	} else if(t == TokenType::VarName) {
-		os << "VarName";
+	 else if(t == TokenType::VarName) {
+		os << "VARMANE";
 	} else if(t == TokenType::Data) {
-		os << "Data";
-	} else if(t == TokenType::String) {
-		os << "String";
-	} else if(t == TokenType::Endl) {
-		os << "Endl";
+		os << "DATA";
 	} else if(t == TokenType::Paren_LEFT) {
 		os << "Paren_LEFT";
 	} else if(t == TokenType::Paren_RIGHT) {
@@ -184,9 +166,7 @@ std::ostream& operator<< (std::ostream& os, const TokenType& t) {
 	} else if(t == TokenType::Bracelet_RIGHT) {
 		os << "Bracelet_RIGHT";
 	} else if(t == TokenType::Arithmetic_Op) {
-		os << "Arithmetic_Op";
-	} else if(t == TokenType::Semicolon) {
-		os << "Semicolon";
+		os << "ARIFMETIC_OP";
 	}
 }	
 
