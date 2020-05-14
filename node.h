@@ -6,19 +6,22 @@
 #include <string>
 #include "token.h"
 
+
 class Node {
 public:
-  virtual int Evaluate() const = 0;
+  virtual std::string Evaluate() const = 0;
+  virtual std::string self() const = 0;
 };
 
 class Variable : public Node {  //class for variables and numbers
 public:
-  explicit Variable(int x);
+  explicit Variable(std::string x);
 
-  int Evaluate() const override;  //the contents of this variable or the value of a number
+  std::string Evaluate() const override;  //the contents of this variable or the value of a number
+  std::string self() const override;
 
 private:
-  int _x;
+  std::string _x;
 };
 
 class Op : public Node {  //class for operations
@@ -27,7 +30,8 @@ public:
 
   const uint8_t precedence;  //priority of the operation
 
-  int Evaluate() const override;  //calculating an expression based on the values of the left and right parts
+  std::string Evaluate() const override;  //calculating an expression based on the values of the left and right parts
+  std::string self() const override;
 
   void SetLeft(std::shared_ptr<Node> node);  //value to the left of the operand
   void SetRight(std::shared_ptr<Node> node);  //value to the right of the operand
