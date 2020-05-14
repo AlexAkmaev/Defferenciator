@@ -62,15 +62,17 @@ std::vector<Token> Tokenize(std::istream& cl) {
 
 std::ostream& operator<< (std::ostream& os, const TokenType& t) {
 	 else if(t == TokenType::VARNAME) {
-		os << "VarName";
+		os << "VARNAME";
 	} else if(t == TokenType::DATA) {
-		os << "Data";
+		os << "DATA";
+	} else if(t == TokenType::UPPER) {
+	        os << "UPPER";
 	} else if(t == TokenType::PAREN_LEFT) {
-		os << "Paren_Left";
+		os << "PAREN_LEFT";
 	} else if(t == TokenType::PAREN_RIGHT) {
-		os << "Paren_Right";
+		os << "PAREN_RIGHT";
 	} else if(t == TokenType::ARITHMETIC_Op) {
-		os << "Arithmetic_Op";
+		os << "ARITHMETIC_OP";
 	}
 }	
 
