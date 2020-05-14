@@ -6,22 +6,13 @@
 #include <string>
 
 enum class TokenType {
-	Logic_Op,
-	Compare_Op,
-	Arithmetic_Op,
-	Assign,
-	While,
-	If,
-	Print,
-	Scanf,
-	VarName,
-	Data,
-	Endl,
-	String,
-	Paren_LEFT,
-	Paren_RIGHT,
-	Bracelet_LEFT,
-	Bracelet_RIGHT,
+	ARIFMETIC_OP,
+	VARNAME,
+	DATA,
+	PAREN_LEFT,
+	PAREN_RIGHT,
+	BRACELET_LEFT,
+	BRACELET_RIGHT,
 };
 
 struct Token {
