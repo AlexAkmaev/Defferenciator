@@ -22,7 +22,6 @@ enum class TokenType {
 	Paren_RIGHT,
 	Bracelet_LEFT,
 	Bracelet_RIGHT,
-	Semicolon,
 };
 
 struct Token {
