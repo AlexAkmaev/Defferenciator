@@ -9,10 +9,9 @@ enum class TokenType {
 	ARIFMETIC_OP,
 	VARNAME,
 	DATA,
+	UPPER,
 	PAREN_LEFT,
 	PAREN_RIGHT,
-	BRACELET_LEFT,
-	BRACELET_RIGHT,
 };
 
 struct Token {
