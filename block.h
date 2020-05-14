@@ -96,18 +96,6 @@ public:
 		    	values.push(std::make_shared<Variable>(name_value.at(next->value)));
 		    	++token;
 		    } 
-	    } else if (val.value == "<" || val.value == "<=" || val.value == ">" || val.value == ">=") {
-	      PopOps(4);
-	      ops.push(std::make_shared<Op>(val.value));
-	    } else if (val.value == "!=" || val.value == "==") {
-	      PopOps(3);
-	      ops.push(std::make_shared<Op>(val.value));
-	    } else if (val.value == "&&") {
-	      PopOps(2);
-	      ops.push(std::make_shared<Op>(val.value));
-	    } else if (val.value == "||") {
-	      PopOps(1);
-	      ops.push(std::make_shared<Op>(val.value));
 	    } else {
 	      if (val.type == TokenType::Data) {
 	      	values.push(std::make_shared<Variable>(atoi(val.value.c_str())));
