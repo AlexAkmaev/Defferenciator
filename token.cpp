@@ -60,7 +60,15 @@ std::vector<Token> Tokenize(std::istream& cl) {
 		else {
 			std::string var_name(1, c);
 			var_name += read_var_name(cl);
-			tokens.push_back({ var_name, TokenType::VARNAME });
+			if (var_name == "cos") {
+				tokens.push_back({ var_name, TokenType::COS });
+			} else if (var_name == "sin") {
+				tokens.push_back({ var_name, TokenType::SIN });
+			} else if (var_name == "x") {
+				tokens.push_back({ var_name, TokenType::VARNAME });
+			} else {
+				throw std::logic_error("Wrong var name");
+			}
 		}
 	}
 
@@ -71,20 +79,17 @@ std::vector<Token> Tokenize(std::istream& cl) {
 std::ostream& operator<< (std::ostream& os, const TokenType& t) {
 	if (t == TokenType::VARNAME) {
 		os << "VARNAME";
-	}
-	else if (t == TokenType::DATA) {
-		os << "DATA";
-	}
-	else if (t == TokenType::UPPER) {
+	} else if (t == TokenType::COS) {
+		os << "COS";
+	} else if (t == TokenType::SIN) {
+		os << "SIN";
+	} else if (t == TokenType::UPPER) {
 		os << "UPPER";
-	}
-	else if (t == TokenType::PAREN_LEFT) {
+	} else if (t == TokenType::PAREN_LEFT) {
 		os << "PAREN_LEFT";
-	}
-	else if (t == TokenType::PAREN_RIGHT) {
+	} else if (t == TokenType::PAREN_RIGHT) {
 		os << "PAREN_RIGHT";
-	}
-	else if (t == TokenType::ARITHMETIC_OP) {
+	} else if (t == TokenType::ARITHMETIC_OP) {
 		os << "ARITHMETIC_OP";
 	}
 	return os;

@@ -1,5 +1,4 @@
-﻿//#include "block.h"
-#include <fstream>
+﻿#include <fstream>
 #include "Expr.hpp"
 
 /* token_parsed_file *
@@ -57,9 +56,7 @@ Expr make_expr(Iterator beg_, Iterator end_) {
 		if (token->type == TokenType::VARNAME) {
 			Variable* var = new Variable{};
 			res.Add(Expr{ var });
-			//res.print();
-		}
-		else if (token->type == TokenType::DATA) {
+		} else if (token->type == TokenType::DATA) {
 			Data* dat = new Data{ token->value };
 			res.Add(Expr{ dat });
 		}
@@ -67,21 +64,10 @@ Expr make_expr(Iterator beg_, Iterator end_) {
 	return res;
 }
 
-template <typename Iterator>
-Expr make_first_precedence(Iterator beg_, Iterator end_) {
+Expr Expressionize(const vector<Expr>& null_prec, const vector<Token>& ops1) {
 	Expr res;
-	vector<Token> ops1, ops2;
-	vector<Expr> null_prec, first_prec;
-	Iterator op = find_op(beg_, end_);
-	for (Iterator token = beg_; token != end_; ++token) {
-		null_prec.push_back(make_expr(token, op));
-		token = op;
-		if (op == end_) { break; }
-			ops1.push_back(*op);
-			op = find_op(op + 1, end_);
-		
-	}
-	std::cout << "< 1 >" << ops1.size() << "\n";
+	vector<Expr> first_prec;
+	vector<Token> ops2;
 	int i = 0;
 	Expr cur = null_prec[i];
 	for (auto&& op : ops1) {
@@ -89,6 +75,9 @@ Expr make_first_precedence(Iterator beg_, Iterator end_) {
 		if (op.value == "*") {
 			Mult* mul = new Mult{ cur, null_prec[i] };
 			cur = Expr{ mul };
+		} else if (op.value == "/") {
+			Division* div = new Division{ cur, null_prec[i] };
+			cur = Expr{ div };
 		} else if (op.value == "+" || op.value == "-") {
 			ops2.push_back(op);
 			first_prec.push_back(cur);
@@ -97,7 +86,6 @@ Expr make_first_precedence(Iterator beg_, Iterator end_) {
 	}
 	first_prec.push_back(cur);
 
-	std::cout << "< 2 >" << ops2.size() << "\n";
 	i = 0;
 	res.Add(first_prec[i]);
 	for (auto&& op : ops2) {
@@ -105,7 +93,8 @@ Expr make_first_precedence(Iterator beg_, Iterator end_) {
 		if (op.value == "+") {
 			Plus* pl = new Plus(res, first_prec[i]);
 			res = Expr{ pl };
-		} else if (op.value == "-") {
+		}
+		else if (op.value == "-") {
 			Minus* ms = new Minus(res, first_prec[i]);
 			res = Expr{ ms };
 		}
@@ -117,133 +106,64 @@ Expr make_first_precedence(Iterator beg_, Iterator end_) {
 //template <typename Iterator>
 //Expr make_first_precedence(Iterator beg_, Iterator end_) {
 //	Expr res;
-//	vector<Expr> first_prec;
-//	vector<Token> ops;
+//	vector<Token> ops1;
+//	vector<Expr> null_prec;
 //	Iterator op = find_op(beg_, end_);
-//	Expr prev_exp = make_expr(beg_, op);
-//	//first_prec.push_back(prev_exp);
-//	Iterator prev_op = beg_;
-//	//std::cout << prev_op->value << "||\n";
-//	int k = 0;
-//	for (Iterator token = op; token != end_; ++token) {
-//		if ((op != end_) && op->value == "*") {
-//			prev_exp = make_expr(prev_op, op);
-//			token = find_op(op + 1, end_);
-//			prev_op = (token == end_) ? end_ : token + 1;
-//			Mult* mul = new Mult{ prev_exp, make_expr(op + 1, token) };
-//			first_prec.push_back(Expr{ mul });
-//		} else {
-//			prev_exp = make_expr(prev_op, op);
-//			first_prec.push_back(prev_exp);
-//			if (op != end_) {
-//				ops.push_back(*op);
-//				prev_op = op + 1;
-//			} else {
-//				prev_op = end_;
-//			}
-//			token = op;
-//		}
-//		for (auto&& e : first_prec) {
-//			e.print();
-//		  std::cout << "| ";
-//		}
-//		std::cout << "<\n";
-//		if (prev_op == end_) break;
-//		op = find_op(prev_op, end_);
-//		//std::cout << "|()|" << (prev_op == end_) << "\n";
+//	for (Iterator token = beg_; token != end_; ++token) {
+//		null_prec.push_back(make_expr(token, op));
+//		token = op;
+//		if (op == end_) { break; }
+//		ops1.push_back(*op);
+//		op = find_op(op + 1, end_);
 //	}
-//
-//		//res.print();
-//	std::cout << "<>" << ops.size() << "\n";
-//	int i = 0;
-//	res.Add(first_prec[i]);
-//	for (auto&& tok : ops) {
-//		++i;
-//		if (tok.value == "+") {
-//			Plus* pl = new Plus(res, first_prec[i]);
-//			res = Expr{ pl };
-//		} else if (tok.value == "-") {
-//			Minus* ms = new Minus(res, first_prec[i]);
-//			res = Expr{ ms };
-//		}
-//	}
-//
-//	return res;
-//}
-
-
-
-//template <typename Iterator>
-//Expr make_expr(Iterator beg_, Iterator end_) {
-//	Expr res;
-//	for(Iterator token = beg_; token != end_; ++token) {
-//		if(token->type == TokenType::VARNAME) {
-//			res.Add(make_shared<Expr>(make_shared<Variable>()));
-//			res.print();
-//		} else if (token->type == TokenType::DATA) {
-//			res.Add(make_shared<Expr>(make_shared<Data>(token->value)));
-//		}
-//	}
-//	return res;
-//}
-//
-//template <typename Iterator>
-//Expr make_first_precedence(Iterator beg_, Iterator end_) {
-//	Expr res;
-//	vector<Expr> first_prec;
-//	vector<Token> ops;
-//  Iterator op = find_op(beg_, end_);
-//	Expr prev_exp = make_expr(beg_, op);
-//	Iterator prev_op = op;
-//	for(Iterator token = op; token != end_; ++token) {
-//		if(op->value == "*") {
-//			prev_exp = make_expr(prev_op, op);
-//			token = find_op(op + 1, end_);
-//			prev_op = (token == end_) ? end_ : token + 1;
-//			first_prec.push_back(Expr{
-//			    make_shared<Mult>(make_shared<Expr>(prev_exp), make_shared<Expr>(make_expr(op + 1, token)))
-//			            });
-//		} else {
-//			prev_exp = make_expr(prev_op, op);
-//			first_prec.push_back(Expr{prev_exp});
-//			ops.push_back(*op);
-//			prev_op = op + 1;
-//			token = op;
-//		}
-//		op = find_op(token + 1, end_);
-//	}
+//	std::cout << "< 1 >" << ops1.size() << "\n";
 //	
-//	int i = 0;
-//	res.Add(make_shared<Expr>(first_prec[i]));
-//	for(auto&& tok : ops) {
-//		if (tok.value == "+") {
-//		  res = Expr{make_shared<Plus>(res, first_prec[i])};
-//		} else if (tok.value == "-") {
-//		  res = Expr{make_shared<Minus>(res, first_prec[i]) };
-//		}
-//    ++i;
-//	}
-//	
+//	res = Expressionize(null_prec, ops1);
 //	return res;
 //}
 
-Expr differenciate(const std::vector<Token>& tokens) {
+template <typename Iterator>
+Expr recognize(Iterator it_beg, Iterator it_end) {
 	Expr res;
-	auto it_beg = tokens.begin(), prev_op = it_beg, it_end = tokens.end();
+	vector<Token> ops1;
+	vector<Expr> null_prec;
+	Iterator op = find_op(it_beg, it_end);
+	for(auto token = it_beg; token != it_end; ++token) {
+		if(token->type == TokenType::PAREN_LEFT) {
+			auto paren_right = find_pair_bracket(token + 1, it_end);
+			null_prec.push_back(recognize(token + 1, paren_right));
+			token = paren_right + 1;
+			if (token == it_end) break;
+			if (token->type == TokenType::ARITHMETIC_OP)
+			  ops1.push_back(*token);
+			op = find_op(token + 1, it_end);
+		} else if (token->type == TokenType::COS || token->type == TokenType::SIN) {
+			if ((token + 1)->type != TokenType::PAREN_LEFT)
+				throw std::logic_error("Need left brace");
+			auto paren_right = find_pair_bracket(token + 2, it_end);
+			Node* in_exp;
+			if (token->type == TokenType::SIN) {
+				in_exp = new Sin{ recognize(token + 2, paren_right) };
+			} else {
+				in_exp = new Cos{ recognize(token + 2, paren_right) };
+			}
+			token = paren_right + 1;
+			null_prec.push_back(Expr{in_exp});
+			if (token == it_end) break;
+			if (token->type == TokenType::ARITHMETIC_OP)
+				ops1.push_back(*token);
+			op = find_op(token + 1, it_end);
+		} else {
+			null_prec.push_back(make_expr(token, op));
+			token = op;
+			if (op == it_end) { break; }
+			ops1.push_back(*op);
+			op = find_op(op + 1, it_end);
+		}
+	}
 
-	//	for(auto token = it_beg; token != it_end; ++token) {
-	//		if(op->value == "*") {
-	//			token = find_op(op + 1, it_end);
-	//			res.Add(Expr{Mult{prev_exp, make_expr(op + 1, token)}});
-	//		} else if(op->value == "+") {
-	//			res.Add(make_expr(prev_op, op));
-	//		} else if(op->value == "-") {
-	//			res.Add(make_expr(prev_op, op));
-	//		}
-	//		op = find_op(token, it_end);
-	//		//token = op;
-	//	}
-	return make_first_precedence(it_beg, it_end);
+	res = Expressionize(null_prec, ops1);
+	return res; //make_first_precedence(it_beg, it_end);
 }
 
 
@@ -266,7 +186,7 @@ int main(int argc, char* argv[]) {
 	token_parsed_file(tokens);
 #endif
 
-	Expr res = differenciate(tokens);
+	Expr res = recognize(tokens.begin(), tokens.end());
 	Expr ans = res.dif();
 	std::cout << ans.print();
 

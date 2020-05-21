@@ -23,12 +23,6 @@ public:
 	explicit Expr(const vector<Node*>& exp) : vars(exp) {}
 	explicit Expr(Node* exp) { vars.push_back(exp); }
 	void Add(const Expr& exp) { vars.insert(vars.end(), exp.vars.begin(), exp.vars.end()); }
-	//	explicit Expr(const Node& func, const vector<Node>& exp) {
-	//		Expr a{func}, b{exp};
-	//		Mult m{ a, b};
-	//	  vars.push_back(m);
-	////	  vars.push_back(Mult{ Expr{func}, Expr{exp} });
-	//	}
 
 	vector<Node*> vars;
 
@@ -106,14 +100,11 @@ public:
 		Expr lhs = left_.dif(), rhs = right_.dif();
 		if (lhs.print() == "0" && rhs.print() == "0") {
 			sum = sum = new Data{ "0" };
-		}
-		else if (rhs.print() == "0") {
+		} else if (rhs.print() == "0") {
 			sum = new Expr{ lhs };
-		}
-		else if (lhs.print() == "0") {
+		} else if (lhs.print() == "0") {
 			sum = new Expr{ rhs };
-		}
-		else {
+		} else {
 			sum = new Plus{ lhs, rhs };
 		}
 	}
@@ -168,43 +159,54 @@ public:
 	}
 
 	std::string print() const override {
-		return left_.print() + "*" + right_.print();
+		return "(" + left_.print() + ")*(" + right_.print() + ")";
 	}
 
 	void init() {
 		Expr lhs = left_.dif(), rhs = right_.dif();
 		if (rhs.print() == "0" && lhs.print() == "0") {
 			sum = new Data{ "0" };
-		} else if (rhs.print() == "0") {
+		}
+		else if (rhs.print() == "0") {
 			if (lhs.print() == "1") {
 				sum = new Expr{ right_ };
-			} else if (right_.print() == "1") {
+			}
+			else if (right_.print() == "1") {
 				sum = new Expr{ lhs };
-			} else {
+			}
+			else {
 				sum = new Mult{ lhs, right_ };
 			}
-		} else if (lhs.print() == "0") {
+		}
+		else if (lhs.print() == "0") {
 			if (rhs.print() == "1") {
 				sum = new Expr{ left_ };
-			} else if (left_.print() == "1") {
+			}
+			else if (left_.print() == "1") {
 				sum = new Expr{ rhs };
-			} else {
+			}
+			else {
 				sum = new Mult{ left_, rhs };
 			}
-		} else {
+		}
+		else {
 			if (lhs.print() == "1") {
 				rg = new Expr{ right_ };
-			} else if (right_.print() == "1") {
+			}
+			else if (right_.print() == "1") {
 				rg = new Expr{ lhs };
-			} else {
+			}
+			else {
 				rg = new Mult{ lhs, right_ };
 			}
 
 			if (rhs.print() == "1") {
 				lf = new Expr{ left_ };
-			} else if (left_.print() == "1") {
+			}
+			else if (left_.print() == "1") {
 				lf = new Expr{ rhs };
-			} else {
+			}
+			else {
 				lf = new Mult{ left_, rhs };
 			}
 
@@ -215,159 +217,125 @@ public:
 	~Mult() { delete lf; delete rg; delete sum; }
 };
 
+class Division final : public Node {
+	Expr left_, right_;
+	Node *lf, *rg, *min;
+	Node *div;
+public:
+	explicit Division(const Expr& lhs, const Expr& rhs) : left_(lhs), right_(rhs) {}
+
+	Expr dif() override {
+		init();
+		return Expr{ div };
+	}
+
+	std::string print() const override {
+		return "(" + left_.print() + ")/(" + right_.print() + ")^2 ";
+	}
+
+	void init() {
+		Expr lhs = left_.dif(), rhs = right_.dif();
+		if (right_.print() == "0") {
+			throw std::logic_error("Division by zero");
+		}
+		if (rhs.print() == "0" && lhs.print() == "0") {
+			min = new Data{ "0" };
+		}
+		else if (rhs.print() == "0") {
+			if (lhs.print() == "1") {
+				min = new Expr{ right_ };
+			}
+			else if (right_.print() == "1") {
+				min = new Expr{ lhs };
+			}
+			else {
+				min = new Mult{ lhs, right_ };
+			}
+		}
+		else if (lhs.print() == "0") {
+			if (rhs.print() == "1") {
+				min = new Expr{ left_ };
+			}
+			else if (left_.print() == "1") {
+				min = new Expr{ rhs };
+			}
+			else {
+				min = new Mult{ left_, rhs };
+			}
+		}
+		else {
+			if (lhs.print() == "1") {
+				rg = new Expr{ right_ };
+			}
+			else if (right_.print() == "1") {
+				rg = new Expr{ lhs };
+			}
+			else {
+				rg = new Mult{ lhs, right_ };
+			}
+
+			if (rhs.print() == "1") {
+				lf = new Expr{ left_ };
+			}
+			else if (left_.print() == "1") {
+				lf = new Expr{ rhs };
+			}
+			else {
+				lf = new Mult{ left_, rhs };
+			}
+
+			min = new Minus{ Expr{rg}, Expr{lf} };
+		}
+		div = new Division{ Expr{min}, right_ };
+	}
+
+	~Division() { delete lf; delete rg; delete div; }
+};
 
 
+class Cos final : public Node{
+	Expr exp_;
+	Node* sin_, * mul;
+public:
+	explicit Cos(const Expr& exp) : exp_(exp) {}
+	Expr dif() override;
 
-//class Mult;
-//class Expr;
-//
-//class Node {
-//public:
-//	//const std::string value;
-//	virtual Expr dif() const = 0;
-//	virtual void print() const = 0;// { std::cout << " EMPPRINT "; }
-//	//virtual ~Node() {}
-//};
-//
-//class Expr : public Node {
-//public:
-//	Expr() = default;
-//	explicit Expr(const vector<Node*>& exp) : vars(exp) {}
-//	//	explicit Expr(const Expr& lhs, const Expr& rhs) { vars.push_back()}
-//	explicit Expr(Node* exp) { vars.push_back(exp); }
-//	void Add(const Expr& exp) { vars.insert(vars.end(), exp.vars.begin(), exp.vars.end()); }
-//	//	explicit Expr(const Node& func, const vector<Node>& exp) {
-//	//		Expr a{func}, b{exp};
-//	//		Mult m{ a, b};
-//	//	  vars.push_back(m);
-//	////	  vars.push_back(Mult{ Expr{func}, Expr{exp} });
-//	//	}
-//
-//	vector<Node*> vars;
-//
-//	Expr dif() const override {
-//		//		vector<Node> ans;
-//		Expr res;
-//		for (auto&& i : vars) {
-//			res.Add(i->dif());
-//			//		  ans.push_back(i.dif());
-//		}
-//		return res;
-//	}
-//
-//	void print() const override {
-//		for (auto&& i : vars) {
-//			i->print();
-//			std::cout << " ";
-//		}
-//	}
-//};
-//
-//
-////Expr Node::dif() const  { std::cout << " EMPEXPR "; return Expr{}; }
-//
-//class Data final : public Node {
-//	const std::string data;
-//public:
-//	Data(const std::string& dat) : data(dat) {}
-//	Expr dif() const override {
-//		return Expr{ &Data{data} };
-//	}
-//
-//	void print() const override {
-//		std::cout << data;
-//	}
-//};
-//
-//
-//class Variable final : public Node {
-//public:
-//	Variable() {}
-//	Expr dif() const override {
-//		return Expr{ &Data{"1"} };
-//	}
-//
-//	void print() const override {
-//		std::cout << "x";
-//	}
-//};
-//
-//
-//class Plus final : public Node {
-//	Expr left_, right_;
-//public:
-//	explicit Plus(const Expr& lhs, const Expr& rhs) : left_(lhs), right_(rhs) {}
-//	explicit Plus(const vector<Node*>& lhs, const vector<Node*>& rhs) :
-//		left_(Expr{ lhs }), right_(Expr{ rhs }) {}
-//	Expr dif() const override {
-//		return Expr{ &Plus{left_.dif(), right_.dif()} };
-//	}
-//
-//	void print() const override {
-//		left_.print();
-//		std::cout << "+";
-//		right_.print();
-//	}
-//};
-//
-//
-//class Minus final : public Node {
-//	Expr left_, right_;
-//public:
-//	explicit Minus(const Expr& lhs, const Expr& rhs) : left_(lhs), right_(rhs) {}
-//	explicit Minus(const vector<Node*>& lhs, const vector<Node*>& rhs) :
-//		left_(Expr{ lhs }), right_(Expr{ rhs }) {}
-//	Expr dif() const override {
-//		return Expr{ &Minus{left_.dif(), right_.dif()} };
-//	}
-//
-//	void print() const override {
-//		left_.print();
-//		std::cout << "+";
-//		right_.print();
-//	}
-//};
-//
-//
-//class Mult final : public Node {
-//	Expr left_, right_;
-//public:
-//	explicit Mult(const Expr& lhs, const Expr& rhs) : left_(lhs), right_(rhs) {}
-//	Expr dif() const override {
-//		return Expr{ &Plus{Expr{&Mult{left_, Expr{right_.dif()}}}, Expr{&Mult{Expr{left_.dif()}, right_}}} };
-//	}
-//
-//	void print() const override {
-//		left_.print();
-//		std::cout << "*";
-//		right_.print();
-//	}
-//};
+	std::string print() const override {
+		return "cos(" + exp_.print() + ")";
+	}
 
+	~Cos() { delete sin_; delete mul; }
+};
 
+class Sin final : public Node {
+	Expr exp_;
+	Node* cos, * mul;
+	std::string minus;
+public:
+	explicit Sin(const Expr& exp, const std::string& m = "") : exp_(exp), minus(m) {}
+  Expr dif() override{
+		Expr exp_d = exp_.dif();
+		cos = new Cos(exp_);
+		if (exp_d.print() == "1")
+			mul = new Expr{cos};
+		else 
+			mul = new Mult{ Expr{cos}, exp_d };
+		return Expr{mul};
+	}
 
+	std::string print() const override {
+		return minus + "sin(" + exp_.print() + ")";
+	}
 
-//class Func : public Node{
-//public:
-//	virtual Expr dif() const = 0;
-//};
-//
-//class Cos final : public Func{
-//public:
-//	explicit Cos(const Expr& exp) : exp_(exp) {}
-//  Expr dif() const override{
-//		return Expr(Sin(exp_), exp_.dif());
-//	}
-//private:
-//	Expr exp_;
-//};
-//
-//class Sin final : public Func{
-//public:
-//	explicit Sin(const Expr& exp) : exp_(exp) {}
-//  Expr dif() const override{
-//		return Expr(Cos(exp_), exp_.dif());
-//	}
-//private:
-//	Expr exp_;
-//};
+	~Sin() { delete cos; delete mul; }
+};
+
+Expr Cos::dif() {
+	Expr exp_d = exp_.dif();
+	sin_ = new Sin{ exp_, "-" };
+	if (exp_d.print() == "1")
+		mul = new Expr{ sin_ };
+	else
+	  mul = new Mult{ Expr{sin_}, exp_.dif() };
+	return Expr{ mul };
+}

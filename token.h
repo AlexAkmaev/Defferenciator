@@ -12,6 +12,8 @@ enum class TokenType {
 	UPPER,
 	PAREN_LEFT,
 	PAREN_RIGHT,
+	COS,
+	SIN,
 };
 
 struct Token {
