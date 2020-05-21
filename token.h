@@ -6,7 +6,7 @@
 #include <string>
 
 enum class TokenType {
-	ARIFMETIC_OP,
+	ARITHMETIC_OP,
 	VARNAME,
 	DATA,
 	UPPER,
@@ -15,10 +15,9 @@ enum class TokenType {
 };
 
 struct Token {
-  const std::string value;
-  const TokenType type;
+	const std::string value;
+	const TokenType type;
 };
 
 std::vector<Token> Tokenize(std::istream& is);  //splits the file into tokens
 std::ostream& operator<< (std::ostream& os, const TokenType& t);  //output operator for the token
-
