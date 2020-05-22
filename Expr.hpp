@@ -159,6 +159,12 @@ public:
 	}
 
 	std::string print() const override {
+		if (left_.print().size() == 1 && right_.print().size() == 1)
+			return left_.print() + "*" + right_.print();
+		if (left_.print().size() == 1)
+			return left_.print() + "*(" + right_.print() + ")";
+		if (right_.print().size() == 1)
+			return "(" + left_.print() + ")*" + right_.print();
 		return "(" + left_.print() + ")*(" + right_.print() + ")";
 	}
 
@@ -254,13 +260,18 @@ public:
 		}
 		else if (lhs.print() == "0") {
 			if (rhs.print() == "1") {
-				min = new Expr{ left_ };
+				lf = new Data{ "-1" };
+				min = new Mult{ Expr{lf}, Expr{ left_ } };
+				//min = new Expr{ left_ };
 			}
 			else if (left_.print() == "1") {
-				min = new Expr{ rhs };
+				lf = new Data{ "-1" };
+				min = new Mult{ Expr{lf}, Expr{ rhs } };
 			}
 			else {
-				min = new Mult{ left_, rhs };
+				lf = new Data{ "-1" };
+				rg = new Mult{ left_, rhs };
+				min = new Mult{ Expr{lf}, Expr{rg} };
 			}
 		}
 		else {
@@ -290,6 +301,46 @@ public:
 	}
 
 	~Division() { delete lf; delete rg; delete div; }
+};
+
+
+class Pown final : public Node {
+	Expr exp_;
+	int power;
+	Node* coef, *mul1, *mul2, *pwr;
+public:
+	explicit Pown(const Expr& exp, const int pw) : exp_(exp), power(pw) {}
+	Expr dif() override {
+		if (power == 0) {
+			coef = new Data{ "0" };
+			return Expr{ coef };
+		}
+		else if (power == 1) {
+			return exp_.dif();
+		}
+		else {
+			Expr exp_d = exp_.dif();
+		  coef = new Data{ to_string(power) };
+			pwr = new Pown{ exp_, power - 1 };
+			mul1 = new Mult{ Expr{coef}, Expr{pwr} };
+			if (exp_d.print() == "1") {
+				return Expr{mul1};
+			} 
+			mul2 = new Mult{ Expr{mul1}, Expr{exp_d} };
+			return Expr{mul2};
+		}
+	}
+
+	std::string print() const override {
+		if (power == 1) {
+			return  exp_.print();
+		}
+		if (exp_.print() == "x")
+		  return  "x^(" + to_string(power) + ")";
+		return  "(" + exp_.print() + ")^(" + to_string(power) + ")";
+	}
+
+	~Pown() { delete mul1; delete mul2; delete pwr; }
 };
 
 

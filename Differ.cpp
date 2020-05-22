@@ -43,7 +43,7 @@ template <typename Iterator>
 Iterator find_op(Iterator beg_, Iterator end_) {
 	if (beg_ == end_) return end_;
 	for (Iterator it = beg_; it != end_; ++it) {
-		if (it->type == TokenType::ARITHMETIC_OP)
+		if (it->type == TokenType::ARITHMETIC_OP || it->type == TokenType::UPPER)
 			return it;
 	}
 	return end_;
@@ -103,24 +103,6 @@ Expr Expressionize(const vector<Expr>& null_prec, const vector<Token>& ops1) {
 	return res;
 }
 
-//template <typename Iterator>
-//Expr make_first_precedence(Iterator beg_, Iterator end_) {
-//	Expr res;
-//	vector<Token> ops1;
-//	vector<Expr> null_prec;
-//	Iterator op = find_op(beg_, end_);
-//	for (Iterator token = beg_; token != end_; ++token) {
-//		null_prec.push_back(make_expr(token, op));
-//		token = op;
-//		if (op == end_) { break; }
-//		ops1.push_back(*op);
-//		op = find_op(op + 1, end_);
-//	}
-//	std::cout << "< 1 >" << ops1.size() << "\n";
-//	
-//	res = Expressionize(null_prec, ops1);
-//	return res;
-//}
 
 template <typename Iterator>
 Expr recognize(Iterator it_beg, Iterator it_end) {
@@ -137,7 +119,8 @@ Expr recognize(Iterator it_beg, Iterator it_end) {
 			if (token->type == TokenType::ARITHMETIC_OP)
 			  ops1.push_back(*token);
 			op = find_op(token + 1, it_end);
-		} else if (token->type == TokenType::COS || token->type == TokenType::SIN) {
+		}
+		else if (token->type == TokenType::COS || token->type == TokenType::SIN) {
 			if ((token + 1)->type != TokenType::PAREN_LEFT)
 				throw std::logic_error("Need left brace");
 			auto paren_right = find_pair_bracket(token + 2, it_end);
@@ -153,15 +136,25 @@ Expr recognize(Iterator it_beg, Iterator it_end) {
 			if (token->type == TokenType::ARITHMETIC_OP)
 				ops1.push_back(*token);
 			op = find_op(token + 1, it_end);
-		} else {
-			null_prec.push_back(make_expr(token, op));
-			token = op;
-			if (op == it_end) { break; }
+		}
+		else if (token != it_beg && (token - 1)->type == TokenType::UPPER) {
+			Node* pwn = new Pown{ null_prec.back(), std::stoi(token->value) };
+			null_prec[null_prec.size() - 1] = Expr{ pwn };
+			if (token + 1 == it_end) break;
 			ops1.push_back(*op);
+			token = op;
+			op = find_op(op + 1, it_end);
+		}
+		else {
+			null_prec.push_back(make_expr(token, op));
+			if (op == it_end) { break; }
+			token = op;
+			if (op->type != TokenType::UPPER)
+			  ops1.push_back(*op);
 			op = find_op(op + 1, it_end);
 		}
 	}
-
+	std::cout << "< 1 >" << ops1.size() << "\n";
 	res = Expressionize(null_prec, ops1);
 	return res; //make_first_precedence(it_beg, it_end);
 }
