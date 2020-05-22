@@ -120,15 +120,22 @@ Expr recognize(Iterator it_beg, Iterator it_end) {
 			  ops1.push_back(*token);
 			op = find_op(token + 1, it_end);
 		}
-		else if (token->type == TokenType::COS || token->type == TokenType::SIN) {
+		else if (token->type == TokenType::COS || 
+						token->type == TokenType::SIN ||
+						token->type == TokenType::EXP ||
+						token->type == TokenType::LOG) {
 			if ((token + 1)->type != TokenType::PAREN_LEFT)
 				throw std::logic_error("Need left brace");
 			auto paren_right = find_pair_bracket(token + 2, it_end);
 			Node* in_exp;
 			if (token->type == TokenType::SIN) {
 				in_exp = new Sin{ recognize(token + 2, paren_right) };
-			} else {
+			} else if (token->type == TokenType::COS) {
 				in_exp = new Cos{ recognize(token + 2, paren_right) };
+			} else if (token->type == TokenType::EXP) {
+				in_exp = new Expon{ recognize(token + 2, paren_right) };
+			} else {
+				in_exp = new Log{ recognize(token + 2, paren_right) };
 			}
 			token = paren_right + 1;
 			null_prec.push_back(Expr{in_exp});
@@ -154,13 +161,15 @@ Expr recognize(Iterator it_beg, Iterator it_end) {
 			op = find_op(op + 1, it_end);
 		}
 	}
-	std::cout << "< 1 >" << ops1.size() << "\n";
+	
 	res = Expressionize(null_prec, ops1);
 	return res; //make_first_precedence(it_beg, it_end);
 }
 
 
 int main(int argc, char* argv[]) {
+
+	std::cout << "We'll rub Stephen Wolfram's nose!\n";
 
 	std::vector<Token> tokens;
 

@@ -64,6 +64,10 @@ std::vector<Token> Tokenize(std::istream& cl) {
 				tokens.push_back({ var_name, TokenType::COS });
 			} else if (var_name == "sin") {
 				tokens.push_back({ var_name, TokenType::SIN });
+			} else if (var_name == "exp") {
+				tokens.push_back({ var_name, TokenType::EXP });
+			} else if (var_name == "ln") {
+				tokens.push_back({ var_name, TokenType::LOG });
 			} else if (var_name == "x") {
 				tokens.push_back({ var_name, TokenType::VARNAME });
 			} else {
@@ -79,10 +83,15 @@ std::vector<Token> Tokenize(std::istream& cl) {
 std::ostream& operator<< (std::ostream& os, const TokenType& t) {
 	if (t == TokenType::VARNAME) {
 		os << "VARNAME";
-	} else if (t == TokenType::COS) {
+	}
+	else if (t == TokenType::COS) {
 		os << "COS";
 	} else if (t == TokenType::SIN) {
 		os << "SIN";
+	} else if (t == TokenType::EXP) {
+		os << "EXP";
+	} else if (t == TokenType::LOG) {
+		os << "LOG";
 	} else if (t == TokenType::UPPER) {
 		os << "UPPER";
 	} else if (t == TokenType::PAREN_LEFT) {
